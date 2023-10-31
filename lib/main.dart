@@ -108,7 +108,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemBuilder: (context, index) {
                     final row = index ~/ matriz[0].length;
                     final col = index % matriz[0].length;
-                    return Image.asset(matriz[row][col]);
+                    return GestureDetector(
+                      onTap: () => {
+                        print("o usuário digitou na linha: $row"),
+                        print("o usuário digitou na coluna: $col"),
+                        print("a imagem sendo exibida é a ${matriz[row][col].split("/")[2]}")
+                      },
+                      child: Container(                        
+                        margin: const EdgeInsets.all(8.0),
+                        child: Image.asset(matriz[row][col]),                      
+                      ) ,
+                    );
                   },
                 ),
               ),
