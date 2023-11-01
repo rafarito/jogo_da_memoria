@@ -13,6 +13,7 @@ String the_sun = "assets/images/the_sun.jpg";
 String the_tower = "assets/images/the_tower.jpg";
 String the_magician = "assets/images/the_magician.jpeg";
 String the_devil = "assets/images/the_devil.jpeg";
+String verso = "assets/images/backfaceyugioh.jpg";
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +36,66 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class Mycard extends StatefulWidget {
+  Mycard(String this.face, {super.key});
+
+  final String face;
+
+  @override
+  State<Mycard> createState() => _MycardState();
+}
+
+class _MycardState extends State<Mycard> {
+
+  bool isBack = false;
+  double angle = 0;
+
+  void _flip() {
+    setState(() {
+      angle = (angle + pi) % (2 * pi);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String faceP = widget.face;
+    return GestureDetector(
+            onTap: () => {
+              _flip(),
+              print("a imagem sendo exibida é a $faceP")
+            },
+            child: TweenAnimationBuilder(
+              tween: Tween<double>(begin: 0, end: angle),
+              duration: Duration(seconds: 1),
+              builder: (BuildContext context, double val, __){
+                if (val >= (pi / 2)) {
+                  isBack = false;
+                } else {
+                  isBack = true;
+                }
+                return (Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.001)
+                    ..rotateY(val),
+                  child: Container(
+                      child: isBack
+                      ? Container(
+                        margin: const EdgeInsets.all(8.0),
+                        child: Image.asset(verso),  
+                      ) 
+                      : Container(                        
+                      margin: const EdgeInsets.all(8.0),
+                      child: Image.asset(faceP),                      
+                    ),
+                  ),
+                ));
+              },
+            ) ,
+          );
+  }
+}
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -54,13 +115,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   final List<List<String>> matriz = [
     [judgement, judgement, justice, justice, strenght, strenght],
     [temperance, temperance, the_chariot, the_chariot, the_fool, the_fool],
     [the_moon, the_moon, the_star, the_star, the_sun, the_sun],
     [the_tower, the_tower, the_magician, the_magician, the_devil, the_devil],
   ];
-  
 
   void shuffleMatrix(List<List<String>> matrix) {
     final random = Random();
@@ -108,17 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemBuilder: (context, index) {
                     final row = index ~/ matriz[0].length;
                     final col = index % matriz[0].length;
-                    return GestureDetector(
-                      onTap: () => {
-                        print("o usuário digitou na linha: $row"),
-                        print("o usuário digitou na coluna: $col"),
-                        print("a imagem sendo exibida é a ${matriz[row][col].split("/")[2]}")
-                      },
-                      child: Container(                        
-                        margin: const EdgeInsets.all(8.0),
-                        child: Image.asset(matriz[row][col]),                      
-                      ) ,
-                    );
+                    return Mycard(matriz[row][col]);
                   },
                 ),
               ),

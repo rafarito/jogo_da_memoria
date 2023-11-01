@@ -72,6 +72,7 @@ flutter:
     - assets/images/the_tower.jpg
     - assets/images/the_magician.jpeg
     - assets/images/the_devil.jpeg
+    - assets/images/backfaceyugioh.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
