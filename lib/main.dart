@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 // aqui é coletado o path de todas as imagens utilizadas
 String judgement = "assets/images/judgement.jpg";
 String justice = "assets/images/justice.jpg";
@@ -46,13 +47,14 @@ class Mycard extends StatefulWidget {
 }
 
 class _MycardState extends State<Mycard> {
-
-  bool isBack = false;
+  bool isBack = true;
   double angle = 0;
 
   void _flip() {
     setState(() {
-      angle = (angle + pi) % (2 * pi); // esse calculo garante que o angle sempre vai se manter entre 0 e 180
+      angle = (angle + pi) %
+          (2 *
+              pi); // esse calculo garante que o angle sempre vai se manter entre 0 e 180
     });
   }
 
@@ -60,39 +62,43 @@ class _MycardState extends State<Mycard> {
   Widget build(BuildContext context) {
     String faceP = widget.face; //coleto a face da super classe acima
     return GestureDetector(
-            onTap: () => {
-              _flip(),    //executo um flip quando a carta for clicada
-              print("a imagem sendo exibida é a $faceP")
-            },
-            child: TweenAnimationBuilder(
-              tween: Tween<double>(begin: 0, end: angle),
-              duration: Duration(seconds: 1),
-              builder: (BuildContext context, double val, __){
-                if (val >= (pi / 2)) {    //quando a imagem ja foi metade rotacionada a variavel se altera para que a imagem altere
-                  isBack = false;
-                } else {
-                  isBack = true;
-                }
-                return (Transform(
-                  alignment: Alignment.center,    // aqui é definido que o eixo de rotação é no centro
-                  transform: Matrix4.identity() // aqui é adicionado a profundidade da carta rotacionando
-                    ..setEntry(3, 2, 0.001)
-                    ..rotateY(val),
-                  child: Container(
-                      child: isBack     //aqui começa um operador ternario que definie qual imagem será exibida
+      onTap: () => {
+        _flip(), //executo um flip quando a carta for clicada
+        print("a imagem sendo exibida é a $faceP")
+      },
+      child: TweenAnimationBuilder(
+        tween: Tween<double>(begin: 0, end: angle),
+        duration: Duration(milliseconds: 500),
+        builder: (BuildContext context, double val, __) {
+          if (val >= (pi / 2)) {
+            //quando a imagem ja foi metade rotacionada a variavel se altera para que a imagem altere
+            isBack = false;
+          } else {
+            isBack = true;
+          }
+          return (Transform(
+            alignment: Alignment
+                .center, // aqui é definido que o eixo de rotação é no centro
+            transform: Matrix4
+                .identity() // aqui é adicionado a profundidade da carta rotacionando
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(val),
+            child: Container(
+              child:
+                  isBack //aqui começa um operador ternario que definie qual imagem será exibida
                       ? Container(
-                        margin: const EdgeInsets.all(8.0),
-                        child: Image.asset(verso),  
-                      ) 
-                      : Container(                        
-                      margin: const EdgeInsets.all(8.0),
-                      child: Image.asset(faceP),                      
-                    ),
-                  ),
-                ));
-              },
-            ) ,
-          );
+                          margin: const EdgeInsets.all(8.0),
+                          child: Image.asset(verso),
+                        )
+                      : Container(
+                          margin: const EdgeInsets.all(8.0),
+                          child: Image.asset(faceP),
+                        ),
+            ),
+          ));
+        },
+      ),
+    );
   }
 }
 
@@ -115,8 +121,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  final List<List<String>> matriz = [     // aqui é definida a matriz que será posta na interface
+  final List<List<String>> matriz = [
+    // aqui é definida a matriz que será posta na interface
     [judgement, judgement, justice, justice, strenght, strenght],
     [temperance, temperance, the_chariot, the_chariot, the_fool, the_fool],
     [the_moon, the_moon, the_star, the_star, the_sun, the_sun],
@@ -140,8 +146,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-
-  void _incrementCounter() {
+  void _reset() {
+    String text = "Reset";
+    //todas as cartas sejam viradas para baixo
     setState(() {
       shuffleMatrix(matriz);
     });
@@ -155,33 +162,39 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(    //container que vai conter o Grid View
-                width: 900,
-                height: 600,
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: matriz[0].length,   // aqui é especificado o numero de colunas do grid
-                  ),
-                  itemCount: matriz.length * matriz[0].length,    // aqui é especificado o numero de elementos do grid
-                  itemBuilder: (context, index) {// aqui será construido cada item do gridView, o index assume todos os valores de 0 até o valor do tamanho do grid
-                    final row = index ~/ matriz[0].length;
-                    final col = index % matriz[0].length;
-                    return Mycard(matriz[row][col]);
-                  },
+          child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              //container que vai conter o Grid View
+              width: 900,
+              height: 600,
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: matriz[0]
+                      .length, // aqui é especificado o numero de colunas do grid
                 ),
+                itemCount: matriz.length *
+                    matriz[0]
+                        .length, // aqui é especificado o numero de elementos do grid
+                itemBuilder: (context, index) {
+                  // aqui será construido cada item do gridView, o index assume todos os valores de 0 até o valor do tamanho do grid
+                  //embaralhar aqui?
+                  shuffleMatrix(matriz);
+                  final row = index ~/ matriz[0].length;
+                  final col = index % matriz[0].length;
+                  return Mycard(matriz[row][col]);
+                },
               ),
-            ],
-          ),
-        )
-      ),
+            ),
+          ],
+        ),
+      )),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        onPressed: _reset,
+        tooltip: 'Reset',
+        child: const Text("Reset"),
       ),
     );
   }
