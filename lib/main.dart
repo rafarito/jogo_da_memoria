@@ -163,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) { // aqui é definido que a função será executada após o build de todos os widgets
       setState(() {
-        // shuffleMatrix(matriz); //depois que todos os widgets são gerados pela primeira vez, embaralhamos
+        shuffleMatrix(matriz); //depois que todos os widgets são gerados pela primeira vez, embaralhamos
       });
     });
   }
