@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -15,6 +16,8 @@ String the_tower = "assets/images/the_tower.jpg";
 String the_magician = "assets/images/the_magician.jpeg";
 String the_devil = "assets/images/the_devil.jpeg";
 String verso = "assets/images/backfaceyugioh.jpg";
+int cliques = 0;
+List<GlobalKey<MycardState>> clicadas = [];
 
 void main() {
   runApp(const MyApp());
@@ -43,18 +46,16 @@ class Mycard extends StatefulWidget {
   final String face;
 
   @override
-  State<Mycard> createState() => _MycardState();
+  State<Mycard> createState() => MycardState();
 }
 
-class _MycardState extends State<Mycard> {
+class MycardState extends State<Mycard> {
   bool isBack = true;
   double angle = 0;
 
-  void _flip() {
+  void flip() {
     setState(() {
-      angle = (angle + pi) %
-          (2 *
-              pi); // esse calculo garante que o angle sempre vai se manter entre 0 e 180
+      angle = (angle + pi) % (2 * pi); // esse calculo garante que o angle sempre vai se manter entre 0 e 180
     });
   }
 
@@ -63,8 +64,25 @@ class _MycardState extends State<Mycard> {
     String faceP = widget.face; //coleto a face da super classe acima
     return GestureDetector(
       onTap: () => {
-        _flip(), //executo um flip quando a carta for clicada
-        print("a imagem sendo exibida é a $faceP")
+        clicadas.add(widget.key as GlobalKey<MycardState>), //aqui adiciono a chave da carta clicada na lista de cartas clicadas
+        cliques++, //aqui o numero de cliques é incrementado
+        if(cliques == 2){
+          if(clicadas[0].currentState?.widget.face == clicadas[1].currentState?.widget.face){ //aqui verifico se as duas cartas clicadas são iguais
+            print("iguais"),
+            clicadas.clear(), //aqui a lista de cartas clicadas é limpa
+            cliques = 0, //aqui o numero de cliques é zerado
+          }else{
+            print("diferentes"),
+            Future.delayed(Duration(milliseconds: 1500), () {
+              clicadas[0].currentState?.flip(); //se forem diferentes, as duas cartas são viradas para baixo
+              clicadas[1].currentState?.flip();
+              clicadas.clear(); //aqui a lista de cartas clicadas é limpa
+              cliques = 0; //aqui o numero de cliques é zerado
+            }),
+          }
+        },
+        flip(), //executo um flip quando a carta for clicada
+        print("a imagem sendo exibida é a $faceP"),
       },
       child: TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: angle),
@@ -84,16 +102,15 @@ class _MycardState extends State<Mycard> {
               ..setEntry(3, 2, 0.001)
               ..rotateY(val),
             child: Container(
-              child:
-                  isBack //aqui começa um operador ternario que definie qual imagem será exibida
-                      ? Container(
-                          margin: const EdgeInsets.all(8.0),
-                          child: Image.asset(verso),
-                        )
-                      : Container(
-                          margin: const EdgeInsets.all(8.0),
-                          child: Image.asset(faceP),
-                        ),
+              child: isBack //aqui começa um operador ternario que definie qual imagem será exibida
+            ? Container(
+                margin: const EdgeInsets.all(8.0),
+                child: Image.asset(verso),
+              )
+            : Container(
+                margin: const EdgeInsets.all(8.0),
+                child: Image.asset(faceP),
+              ),
             ),
           ));
         },
@@ -121,13 +138,35 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<List<String>> matriz = [
+  List<List<String>> matriz = [
     // aqui é definida a matriz que será posta na interface
     [judgement, judgement, justice, justice, strenght, strenght],
     [temperance, temperance, the_chariot, the_chariot, the_fool, the_fool],
     [the_moon, the_moon, the_star, the_star, the_sun, the_sun],
     [the_tower, the_tower, the_magician, the_magician, the_devil, the_devil],
   ];
+
+  // aqui é definida uma matriz de listas que vai conter as cartas no tabuleiro
+  List<List<Mycard>> cards = [[],[],[],[]];
+
+  // aqui é definida uma matriz de listas que vai conter as chaves de cada carta, para podermos controlar as cartas
+  List<List<GlobalKey<MycardState>>> keys = List.generate(
+    4,
+    (i) => List.generate(
+      6,
+      (j) => GlobalKey<MycardState>(),
+    ),
+  );
+  
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) { // aqui é definido que a função será executada após o build de todos os widgets
+      setState(() {
+        // shuffleMatrix(matriz); //depois que todos os widgets são gerados pela primeira vez, embaralhamos
+      });
+    });
+  }
 
   // função para embaralhar matrizes
   void shuffleMatrix(List<List<String>> matrix) {
@@ -144,12 +183,25 @@ class _MyHomePageState extends State<MyHomePage> {
         matrix[randomRow][randomCol] = temp;
       }
     }
+    // aqui é atualizada a matriz de cartas com as novas imagens
+    for(int i = 0;i<matriz.length;i++){
+      for(int j = 0;j<matriz[i].length;j++){
+        cards[i][j] = Mycard(key: keys[i][j], matriz[i][j]);
+      }
+    }
   }
 
   void _reset() {
-    String text = "Reset";
-    //todas as cartas sejam viradas para baixo
+    //todas as cartas sejam viradas para baixo e depois embaralhadas
     setState(() {
+      for (int i = 0; i < keys.length; i++) {
+        for (int j = 0; j < keys[i].length; j++) {
+          if(keys[i][j].currentState?.isBack == false){
+            keys[i][j].currentState?.flip();
+          }
+        }
+      }
+      sleep(Duration(milliseconds: 250));
       shuffleMatrix(matriz);
     });
   }
@@ -172,19 +224,15 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 600,
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: matriz[0]
-                      .length, // aqui é especificado o numero de colunas do grid
+                  crossAxisCount: matriz[0].length, // aqui é especificado o numero de colunas do grid
                 ),
-                itemCount: matriz.length *
-                    matriz[0]
-                        .length, // aqui é especificado o numero de elementos do grid
+                itemCount: matriz.length * matriz[0].length, // aqui é especificado o numero de elementos do grid
                 itemBuilder: (context, index) {
                   // aqui será construido cada item do gridView, o index assume todos os valores de 0 até o valor do tamanho do grid
-                  //embaralhar aqui?
-                  shuffleMatrix(matriz);
                   final row = index ~/ matriz[0].length;
                   final col = index % matriz[0].length;
-                  return Mycard(matriz[row][col]);
+                  cards[row].add(Mycard(key: keys[row][col], matriz[row][col]));
+                  return cards[row][col];
                 },
               ),
             ),
