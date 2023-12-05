@@ -201,9 +201,13 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         }
       }
-      sleep(Duration(milliseconds: 250));
-      shuffleMatrix(matriz);
     });
+      Future.delayed(Duration(milliseconds: 250), () {
+        setState(() {
+          shuffleMatrix(matriz);
+        });
+      });
+
   }
 
   @override
