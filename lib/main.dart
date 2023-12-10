@@ -19,6 +19,15 @@ String verso = "assets/images/backfaceyugioh.jpg";
 int cliques = 0;
 List<GlobalKey<MycardState>> clicadas = [];
 
+ // aqui é definida uma matriz de listas que vai conter as chaves de cada carta, para podermos controlar as cartas
+  List<List<GlobalKey<MycardState>>> keys = List.generate(
+    4,
+    (i) => List.generate(
+      6,
+      (j) => GlobalKey<MycardState>(),
+    ),
+  );
+
 void main() {
   runApp(const MyApp());
 }
@@ -60,6 +69,24 @@ class MycardState extends State<Mycard> {
     });
   }
 
+  void blockAll() {
+    for (int i = 0; i < keys.length; i++) {
+      for (int j = 0; j < keys[i].length; j++) {
+        keys[i][j].currentState?.blocked = true;
+      }
+    }
+  }
+
+  void unblockAll() {
+    for (int i = 0; i < keys.length; i++) {
+      for (int j = 0; j < keys[i].length; j++) {
+        if(keys[i][j].currentState?.isBack == true) {
+          keys[i][j].currentState?.blocked = false;
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String faceP = widget.face; //coleto a face da super classe acima
@@ -76,9 +103,11 @@ class MycardState extends State<Mycard> {
               cliques = 0, //aqui o numero de cliques é zerado
             }else{
               print("diferentes"),
+              blockAll(),
               Future.delayed(Duration(milliseconds: 1500), () {
                 clicadas[0].currentState?.flip(); //se forem diferentes, as duas cartas são viradas para baixo
                 clicadas[1].currentState?.flip();
+                unblockAll();
                 clicadas[0].currentState?.blocked = false; //aqui desbloqueio as cartas clicadas
                 clicadas[1].currentState?.blocked = false;
                 clicadas.clear(); //aqui a lista de cartas clicadas é limpa
@@ -155,14 +184,6 @@ class _MyHomePageState extends State<MyHomePage> {
   // aqui é definida uma matriz de listas que vai conter as cartas no tabuleiro
   List<List<Mycard>> cards = [[],[],[],[]];
 
-  // aqui é definida uma matriz de listas que vai conter as chaves de cada carta, para podermos controlar as cartas
-  List<List<GlobalKey<MycardState>>> keys = List.generate(
-    4,
-    (i) => List.generate(
-      6,
-      (j) => GlobalKey<MycardState>(),
-    ),
-  );
   
   @override
   void initState() {
