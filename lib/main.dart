@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -7,15 +6,16 @@ String judgement = "assets/images/judgement.jpg";
 String justice = "assets/images/justice.jpg";
 String strenght = "assets/images/strenght.jpg";
 String temperance = "assets/images/temperance.jpg";
-String the_chariot = "assets/images/the_chariot.jpg";
-String the_fool = "assets/images/the_fool.jpg";
-String the_moon = "assets/images/the_moon.jpg";
-String the_star = "assets/images/the_star.jpg";
-String the_sun = "assets/images/the_sun.jpg";
-String the_tower = "assets/images/the_tower.jpg";
-String the_magician = "assets/images/the_magician.jpeg";
-String the_devil = "assets/images/the_devil.jpeg";
+String theChariot = "assets/images/the_chariot.jpg";
+String theFool = "assets/images/the_fool.jpg";
+String theMoon = "assets/images/the_moon.jpg";
+String theStar = "assets/images/the_star.jpg";
+String theSun = "assets/images/the_sun.jpg";
+String theTower = "assets/images/the_tower.jpg";
+String theMagician = "assets/images/the_magician.jpeg";
+String theDevil = "assets/images/the_devil.jpeg";
 String verso = "assets/images/backfaceyugioh.jpg";
+GlobalKey homeKey = GlobalKey();
 int cliques = 0;
 List<GlobalKey<MycardState>> clicadas = [];
 
@@ -27,6 +27,30 @@ List<GlobalKey<MycardState>> clicadas = [];
       (j) => GlobalKey<MycardState>(),
     ),
   );
+
+  void checkWin(){
+    bool win = true;
+    for(int i = 0;i<keys.length;i++){
+      for(int j = 0;j<keys[i].length;j++){
+        if(keys[i][j].currentState?.isBack == true){
+          win = false;
+        }
+      }
+    }
+    if(win){
+      mostrarAviso(homeKey.currentContext!, "você venceu! Aperte o botão reset para jogar novamente");
+    }
+  }
+
+  void mostrarAviso(BuildContext context, String mensagem) {
+  final scaffold = ScaffoldMessenger.of(context);
+  scaffold.showSnackBar(
+    SnackBar(
+      content: Text(mensagem),
+      duration: const Duration(seconds: 2), // Duração do SnackBar em segundos
+    ),
+  );
+}
 
 void main() {
   runApp(const MyApp());
@@ -41,16 +65,16 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: true, //aqui retira a faixa de debug
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 145, 0, 0),brightness: Brightness.dark),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(key: homeKey ,title: 'Jogo da memoria'),
     );
   }
 }
 
 class Mycard extends StatefulWidget {
-  Mycard(String this.face, {super.key});
+  const Mycard(this.face, {super.key});
 
   final String face;
 
@@ -98,13 +122,11 @@ class MycardState extends State<Mycard> {
           cliques++, //aqui o numero de cliques é incrementado
           if(cliques == 2){
             if(clicadas[0].currentState?.widget.face == clicadas[1].currentState?.widget.face){ //aqui verifico se as duas cartas clicadas são iguais
-              print("iguais"),
               clicadas.clear(), //aqui a lista de cartas clicadas é limpa
-              cliques = 0, //aqui o numero de cliques é zerado
+              cliques = 0, //aqui o numero de cliques é zerado              
             }else{
-              print("diferentes"),
               blockAll(),
-              Future.delayed(Duration(milliseconds: 1500), () {
+              Future.delayed(const Duration(milliseconds: 1500), () {
                 clicadas[0].currentState?.flip(); //se forem diferentes, as duas cartas são viradas para baixo
                 clicadas[1].currentState?.flip();
                 unblockAll();
@@ -116,12 +138,14 @@ class MycardState extends State<Mycard> {
             }
           },
           flip(), //executo um flip quando a carta for clicada
-          print("a imagem sendo exibida é a $faceP"),
+          Future.delayed(const Duration(milliseconds: 500), () {
+            checkWin();
+          })
         }
       },
       child: TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: angle),
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         builder: (BuildContext context, double val, __) {
           if (val >= (pi / 2)) {
             //quando a imagem ja foi metade rotacionada a variavel se altera para que a imagem altere
@@ -176,9 +200,9 @@ class _MyHomePageState extends State<MyHomePage> {
   List<List<String>> matriz = [
     // aqui é definida a matriz que será posta na interface
     [judgement, judgement, justice, justice, strenght, strenght],
-    [temperance, temperance, the_chariot, the_chariot, the_fool, the_fool],
-    [the_moon, the_moon, the_star, the_star, the_sun, the_sun],
-    [the_tower, the_tower, the_magician, the_magician, the_devil, the_devil],
+    [temperance, temperance, theChariot, theChariot, theFool, theFool],
+    [theMoon, theMoon, theStar, theStar, theSun, theSun],
+    [theTower, theTower, theMagician, theMagician, theDevil, theDevil],
   ];
 
   // aqui é definida uma matriz de listas que vai conter as cartas no tabuleiro
@@ -232,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     });
-      Future.delayed(Duration(milliseconds: 250), () {
+      Future.delayed(const Duration(milliseconds: 250), () {
         setState(() {
           shuffleMatrix(matriz);
         });
@@ -252,8 +276,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              //container que vai conter o Grid View
+            SizedBox(
+              //SizedBox que vai conter o Grid View
               width: 900,
               height: 600,
               child: GridView.builder(
