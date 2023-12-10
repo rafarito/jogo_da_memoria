@@ -52,6 +52,7 @@ class Mycard extends StatefulWidget {
 class MycardState extends State<Mycard> {
   bool isBack = true;
   double angle = 0;
+  bool blocked = false;
 
   void flip() {
     setState(() {
@@ -64,25 +65,30 @@ class MycardState extends State<Mycard> {
     String faceP = widget.face; //coleto a face da super classe acima
     return GestureDetector(
       onTap: () => {
-        clicadas.add(widget.key as GlobalKey<MycardState>), //aqui adiciono a chave da carta clicada na lista de cartas clicadas
-        cliques++, //aqui o numero de cliques é incrementado
-        if(cliques == 2){
-          if(clicadas[0].currentState?.widget.face == clicadas[1].currentState?.widget.face){ //aqui verifico se as duas cartas clicadas são iguais
-            print("iguais"),
-            clicadas.clear(), //aqui a lista de cartas clicadas é limpa
-            cliques = 0, //aqui o numero de cliques é zerado
-          }else{
-            print("diferentes"),
-            Future.delayed(Duration(milliseconds: 1500), () {
-              clicadas[0].currentState?.flip(); //se forem diferentes, as duas cartas são viradas para baixo
-              clicadas[1].currentState?.flip();
-              clicadas.clear(); //aqui a lista de cartas clicadas é limpa
-              cliques = 0; //aqui o numero de cliques é zerado
-            }),
-          }
-        },
-        flip(), //executo um flip quando a carta for clicada
-        print("a imagem sendo exibida é a $faceP"),
+        if(!blocked){
+          blocked = true, //aqui bloqueio a carta para que ela não seja clicada novamente
+          clicadas.add(widget.key as GlobalKey<MycardState>), //aqui adiciono a chave da carta clicada na lista de cartas clicadas
+          cliques++, //aqui o numero de cliques é incrementado
+          if(cliques == 2){
+            if(clicadas[0].currentState?.widget.face == clicadas[1].currentState?.widget.face){ //aqui verifico se as duas cartas clicadas são iguais
+              print("iguais"),
+              clicadas.clear(), //aqui a lista de cartas clicadas é limpa
+              cliques = 0, //aqui o numero de cliques é zerado
+            }else{
+              print("diferentes"),
+              Future.delayed(Duration(milliseconds: 1500), () {
+                clicadas[0].currentState?.flip(); //se forem diferentes, as duas cartas são viradas para baixo
+                clicadas[1].currentState?.flip();
+                clicadas[0].currentState?.blocked = false; //aqui desbloqueio as cartas clicadas
+                clicadas[1].currentState?.blocked = false;
+                clicadas.clear(); //aqui a lista de cartas clicadas é limpa
+                cliques = 0; //aqui o numero de cliques é zerado
+              }),
+            }
+          },
+          flip(), //executo um flip quando a carta for clicada
+          print("a imagem sendo exibida é a $faceP"),
+        }
       },
       child: TweenAnimationBuilder(
         tween: Tween<double>(begin: 0, end: angle),
