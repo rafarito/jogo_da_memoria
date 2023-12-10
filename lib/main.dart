@@ -219,10 +219,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _reset() {
+    cliques = 0;
+    clicadas.clear();
     //todas as cartas sejam viradas para baixo e depois embaralhadas
     setState(() {
       for (int i = 0; i < keys.length; i++) {
         for (int j = 0; j < keys[i].length; j++) {
+          keys[i][j].currentState?.blocked = false;
           if(keys[i][j].currentState?.isBack == false){
             keys[i][j].currentState?.flip();
           }
