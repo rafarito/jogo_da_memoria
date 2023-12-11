@@ -1,16 +1,7 @@
 # jogo_da_memoria
 
-A new Flutter project.
+um jogo da memoria simples desenvolvido em dart com o framework flutter
 
-## Getting Started
+## começando
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+para rodar esse projeto, certifique-se de que o flutter está atualizado para a versão mais recente, em seguida, escreva no terminal o seguinte comando: `flutter pub get` para pegar os pacotes que estão faltando. agora basta rodar a aplicação com `flutter run`.
