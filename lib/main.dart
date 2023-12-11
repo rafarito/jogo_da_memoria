@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      debugShowCheckedModeBanner: true, //aqui retira a faixa de debug
+      debugShowCheckedModeBanner: false, //aqui retira a faixa de debug
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 145, 0, 0),brightness: Brightness.dark),
         useMaterial3: true,
